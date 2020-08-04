@@ -41,6 +41,7 @@
       if (!this.canvas._isMainEvent(options.e)) {
         return;
       }
+      this.props = options.props
       this._prepareForDrawing(pointer);
       // capture coordinates immediately
       // this allows to draw dots (when movement never occurs)
@@ -144,6 +145,9 @@
           p2 = this._points[1];
 
       this._saveAndTransform(ctx);
+
+      // ctx.globalCompositeOperation=this.props&&this.props.isEraser?'destination-out':'source-over'
+      
       ctx.beginPath();
       //if we only have 2 points in the path and they are the same
       //it means that the user only clicked the canvas without moving the mouse
@@ -286,7 +290,7 @@
 
 
       // fire event 'path' created
-      this.canvas.fire('path:created', { path: path });
+      this.canvas.fire('path:created', { path: path, props: this.props });
     }
   });
 })();
