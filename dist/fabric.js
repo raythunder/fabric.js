@@ -8667,7 +8667,7 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
 });
 
 
-(function() {
+(function () {
   /**
    * PencilBrush class
    * @class fabric.PencilBrush
@@ -8687,7 +8687,7 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
      * @param {fabric.Canvas} canvas
      * @return {fabric.PencilBrush} Instance of a pencil brush
      */
-    initialize: function(canvas) {
+    initialize: function (canvas) {
       this.canvas = canvas;
       this._points = [];
     },
@@ -8706,7 +8706,7 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
      * Inovoked on mouse down
      * @param {Object} pointer
      */
-    onMouseDown: function(pointer, options) {
+    onMouseDown: function (pointer, options) {
       if (!this.canvas._isMainEvent(options.e)) {
         return;
       }
@@ -8722,7 +8722,7 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
      * Inovoked on mouse move
      * @param {Object} pointer
      */
-    onMouseMove: function(pointer, options) {
+    onMouseMove: function (pointer, options) {
       if (!this.canvas._isMainEvent(options.e)) {
         return;
       }
@@ -8751,7 +8751,7 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
     /**
      * Invoked on mouse up
      */
-    onMouseUp: function(options) {
+    onMouseUp: function (options) {
       if (!this.canvas._isMainEvent(options.e)) {
         return true;
       }
@@ -8764,7 +8764,7 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
      * @private
      * @param {Object} pointer Actual mouse position related to the canvas.
      */
-    _prepareForDrawing: function(pointer) {
+    _prepareForDrawing: function (pointer) {
 
       var p = new fabric.Point(pointer.x, pointer.y);
 
@@ -8777,19 +8777,35 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
      * @private
      * @param {fabric.Point} point Point to be added to points array
      */
-    _addPoint: function(point) {
+    _addPoint: function (point) {
       if (this._points.length > 1 && point.eq(this._points[this._points.length - 1])) {
         return false;
       }
-      this._points.push(point);
-      return true;
+      var lastPoint = this._points[this._points.length - 1]
+      // console.log(lastPoint, point)
+      if (lastPoint && this._points.length>2) {
+        var dx = Math.abs(lastPoint.x - point.x)
+        var dy = Math.abs(lastPoint.y - point.y)
+
+        var dis = Math.sqrt(Math.pow(dx, 2) + Math.pow(dy, 2))
+        // console.log(dis)
+        if (dis > 1) {
+          this._points.push(point);
+          return true
+        } else {
+          return false
+        }
+      } else {
+        this._points.push(point);
+        return true
+      }
     },
 
     /**
      * Clear points array and set contextTop canvas style.
      * @private
      */
-    _reset: function() {
+    _reset: function () {
       this._points = [];
       this._setBrushStyles();
       this._setShadow();
@@ -8799,7 +8815,7 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
      * @private
      * @param {Object} pointer Actual mouse position related to the canvas.
      */
-    _captureDrawingPath: function(pointer) {
+    _captureDrawingPath: function (pointer) {
       var pointerPoint = new fabric.Point(pointer.x, pointer.y);
       return this._addPoint(pointerPoint);
     },
@@ -8808,15 +8824,15 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
      * Draw a smooth path on the topCanvas using quadraticCurveTo
      * @private
      */
-    _render: function() {
-      var ctx  = this.canvas.contextTop, i, len,
-          p1 = this._points[0],
-          p2 = this._points[1];
+    _render: function () {
+      var ctx = this.canvas.contextTop, i, len,
+        p1 = this._points[0],
+        p2 = this._points[1];
 
       this._saveAndTransform(ctx);
 
       // ctx.globalCompositeOperation=this.props&&this.props.isEraser?'destination-out':'source-over'
-      
+
       ctx.beginPath();
       //if we only have 2 points in the path and they are the same
       //it means that the user only clicked the canvas without moving the mouse
@@ -8851,11 +8867,11 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
      * @param {Array} points Array of points
      * @return {String} SVG path
      */
-    convertPointsToSVGPath: function(points) {
+    convertPointsToSVGPath: function (points) {
       var path = [], i, width = this.width / 1000,
-          p1 = new fabric.Point(points[0].x, points[0].y),
-          p2 = new fabric.Point(points[1].x, points[1].y),
-          len = points.length, multSignX = 1, multSignY = 0, manyPoints = len > 2;
+        p1 = new fabric.Point(points[0].x, points[0].y),
+        p2 = new fabric.Point(points[1].x, points[1].y),
+        len = points.length, multSignX = 1, multSignY = 0, manyPoints = len > 2;
 
       if (manyPoints) {
         multSignX = points[2].x < p2.x ? -1 : points[2].x === p2.x ? 0 : 1;
@@ -8888,7 +8904,7 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
      * @param {String} pathData Path data
      * @return {fabric.Path} Path to add on canvas
      */
-    createPath: function(pathData) {
+    createPath: function (pathData) {
       var path = new fabric.Path(pathData, {
         fill: null,
         stroke: this.color,
@@ -8909,13 +8925,13 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
     /**
      * Decimate poins array with the decimate value
      */
-    decimatePoints: function(points, distance) {
+    decimatePoints: function (points, distance) {
       if (points.length <= 2) {
         return points;
       }
       var zoom = this.canvas.getZoom(), adjustedDistance = Math.pow(distance / zoom, 2),
-          i, l = points.length - 1, lastPoint = points[0], newPoints = [lastPoint],
-          cDistance;
+        i, l = points.length - 1, lastPoint = points[0], newPoints = [lastPoint],
+        cDistance;
       for (i = 1; i < l; i++) {
         cDistance = Math.pow(lastPoint.x - points[i].x, 2) + Math.pow(lastPoint.y - points[i].y, 2);
         if (cDistance >= adjustedDistance) {
@@ -8934,7 +8950,7 @@ fabric.BaseBrush = fabric.util.createClass(/** @lends fabric.BaseBrush.prototype
      * we use the points captured to create an new fabric path object
      * and add it to the fabric canvas.
      */
-    _finalizeAndAddPath: function() {
+    _finalizeAndAddPath: function () {
       var ctx = this.canvas.contextTop;
       ctx.closePath();
       if (this.decimate) {
